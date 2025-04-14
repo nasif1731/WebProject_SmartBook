@@ -51,4 +51,32 @@ SmartBook is a MERN stack-based web application that enables users to upload, or
 Create a `.env` file in the `backend/` directory:
 ```bash
 PORT=5000 JWT_SECRET=your_secret_key MONGO_URI=your_mongodb_connection_string
+```
+---
+
+## 🧪 API Testing with Postman
+
+### Auth Routes
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+
+### Book Routes
+- `POST /api/books/upload` (with PDF file)
+- `GET /api/books/my`
+- `GET /api/books/public`
+- `PUT /api/books/:bookId`
+- `DELETE /api/books/:bookId`
+
+---
+
+## 🧰 Installation & Run
+
+### Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
 
