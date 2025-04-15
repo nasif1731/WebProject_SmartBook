@@ -1,9 +1,17 @@
 const Book = require('../models/Book');
 
 exports.uploadBook = async (req, res) => {
+  console.log("📥 UploadBook route triggered");
+
   try {
+    if (!req.body || !req.file) {
+      console.log("❌ req.body:", req.body);
+      console.log("❌ req.file:", req.file);
+      return res.status(400).json({ message: "Missing book data or PDF file" });
+    }
+
     const { title, author, description, tags, isPublic, coverImageUrl } = req.body;
-    const pdfUrl = req.file?.path;
+    const pdfUrl = req.file.path;
 
     const book = await Book.create({
       title,
@@ -11,16 +19,20 @@ exports.uploadBook = async (req, res) => {
       description,
       tags: tags?.split(',') || [],
       isPublic,
-      pdfUrl,
       coverImageUrl,
+      pdfUrl,
       uploadedBy: req.user._id,
     });
 
+    console.log("✅ Book created:", book.title);
     res.status(201).json(book);
   } catch (err) {
+    console.error("❌ Upload failed:", err.message);
     res.status(500).json({ message: 'Upload failed', error: err.message });
   }
 };
+
+
 
 exports.getMyBooks = async (req, res) => {
   const books = await Book.find({ uploadedBy: req.user._id });
