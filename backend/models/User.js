@@ -8,7 +8,12 @@ const userSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   avatar: { type: String, default: 'https://lh3.googleusercontent.com/X8LuYsGddUvyGns8yNt3lsqXU-etopUi9saFCQ-VMIImDW0plr-ZvBRjhnKh4V2r6UEMaBMXUBkJSD_RrHbWdmIp2RUnVJgcbiJ_S3l_kOAseWWI6JiLccLcL0cRFpnba-n4bjlOW3FvHbHdMs_ToZE' },
   readList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
-  uploadedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
+  uploadedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
+  readingHistory: [{
+    book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
+    timestamp: { type: Date, default: Date.now }
+  }],
+  
 });
 
 // Hash password before saving
@@ -23,5 +28,6 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
 
 module.exports = mongoose.model('User', userSchema);
