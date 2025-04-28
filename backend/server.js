@@ -18,13 +18,15 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require('./routes/bookRoutes');
+const userRoutes = require('./routes/userRoutes');
 const bookSearchRoutes = require('./routes/bookSearchRoutes'); 
 const reviewRoutes = require('./routes/reviewRoutes');          
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);          
 app.use('/api/books', bookSearchRoutes);    
-app.use('/api/reviews', reviewRoutes);      
+app.use('/api/reviews', reviewRoutes);    
+app.use('/api/user', require('./routes/userRoutes'));
 
 // Root
 app.get('/', (req, res) => {
