@@ -7,28 +7,28 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleCredentialResponse = useCallback((response) => {
-    // The JWT token contains a user ID (sub field) but not picture
-    // So we directly use Google's People API OR store the email and name
-  
-    const token = response.credential;
-  
-    const userObject = parseJwt(token);
-  
-    if (userObject) {
-      const { name, email } = userObject;
-      const picture = userObject.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
-  
-      localStorage.setItem(
-        "googleUser",
-        JSON.stringify({ name, email, picture })
-      );
-      console.log("Google User Info:", { name, email, picture });
-      navigate("/");
-    } else {
-      console.error("Failed to decode Google token");
-    }
-  }, [navigate]);
-  
+  // The JWT token contains a user ID (sub field) but not picture
+  // So we directly use Google's People API OR store the email and name
+
+  const token = response.credential;
+
+  const userObject = parseJwt(token);
+
+  if (userObject) {
+    const { name, email } = userObject;
+    const picture = userObject.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+
+    localStorage.setItem(
+      "googleUser",
+      JSON.stringify({ name, email, picture })
+    );
+    console.log("Google User Info:", { name, email, picture });
+    navigate("/");
+  } else {
+    console.error("Failed to decode Google token");
+  }
+}, [navigate]);
+
 
   useEffect(() => {
     window.google?.accounts.id.initialize({
