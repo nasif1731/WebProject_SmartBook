@@ -7,11 +7,22 @@ const User = require('./models/User');
 const Book = require('./models/Book');
 const UserBook = require('./models/UserBook');
 
-const seedData = async () => {
-  await connectDB();
-
+const connectDB = async () => {
   try {
-    // Clear old data
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('MongoDB Connected');
+  } catch (err) {
+    console.error('MongoDB Connection Failed:', err.message);
+    process.exit(1);
+  }
+};
+
+const seed = async () => {
+  try {
+    await connectDB();
     await User.deleteMany();
     await Book.deleteMany();
     await UserBook.deleteMany();
@@ -76,9 +87,9 @@ const seedData = async () => {
     console.log('Seed data inserted successfully!');
     process.exit();
   } catch (err) {
-    console.error('Error inserting seed data:', err);
+    console.error('❌ Seed failed:', err);
     process.exit(1);
   }
 };
 
-seedData();
+seed();
