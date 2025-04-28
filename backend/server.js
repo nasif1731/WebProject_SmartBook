@@ -21,12 +21,14 @@ const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
 const bookSearchRoutes = require('./routes/bookSearchRoutes'); 
 const reviewRoutes = require('./routes/reviewRoutes');          
+const metricsRoutes = require('./routes/metricsRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);          
 app.use('/api/books', bookSearchRoutes);    
 app.use('/api/reviews', reviewRoutes);    
 app.use('/api/user', require('./routes/userRoutes'));
+app.use('/api/metrics', metricsRoutes);
 
 // Root
 app.get('/', (req, res) => {
