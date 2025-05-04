@@ -1,12 +1,13 @@
-// controllers/userController.js
 const User = require('../models/User');
+const Book = require('../models/Book');
 const bcrypt = require('bcryptjs');
 
+// 🔐 Profile
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
-      .select('-password -isAdmin') // exclude password & isAdmin
-      .populate('readList uploadedBooks'); // populate book details
+      .select('-password -isAdmin')
+      .populate('readList uploadedBooks');
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
@@ -16,7 +17,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-
+// ✏️ Profile Update
 exports.updateProfile = async (req, res) => {
   try {
     const { fullName, avatar, preferences } = req.body;
@@ -35,6 +36,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+// 🔑 Password Change
 exports.changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -52,5 +54,21 @@ exports.changePassword = async (req, res) => {
     res.json({ message: 'Password changed successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to change password', error: err.message });
+  }
+};
+// 📊 Dashboard Data (FIXED)
+exports.getDashboardData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // 🔧 FIXED: Correct field name is uploadedBy, not uploader
+    const uploads = await Book.find({ uploadedBy: userId }).sort({ createdAt: -1 });
+
+    const user = await User.findById(userId).populate('readList');
+    const readList = user?.readList || [];
+
+    res.json({ uploads, readList });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch dashboard', error: err.message });
   }
 };

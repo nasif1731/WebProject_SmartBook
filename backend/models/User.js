@@ -11,8 +11,10 @@ const userSchema = new mongoose.Schema({
   uploadedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
   readingHistory: [{
     book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
+    progress: { type: Number, default: 0 },
     timestamp: { type: Date, default: Date.now }
   }],
+  
   
 });
 

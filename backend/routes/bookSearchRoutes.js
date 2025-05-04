@@ -15,15 +15,6 @@ const {
 // 🔍 Smart Search & Filters
 router.get('/search', protect, searchBooks);
 
-// 📈 Top Books
-router.get('/top', getTopBooks);
-
-// 💡 Recommendations
-router.get('/recommendations', protect, getRecommendations);
-
-// 🕒 Recently Read
-router.get('/recent', protect, getRecentlyReadBooks);
-
 // ⭐ Reviews
 router.post('/:bookId/reviews', protect, addReview);
 router.get('/:bookId/reviews', getReviews);
