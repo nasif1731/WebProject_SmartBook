@@ -15,8 +15,5 @@ const {
 // 🔍 Smart Search & Filters
 router.get('/search', protect, searchBooks);
 
-// ⭐ Reviews
-router.post('/:bookId/reviews', protect, addReview);
-router.get('/:bookId/reviews', getReviews);
 
 module.exports = router;

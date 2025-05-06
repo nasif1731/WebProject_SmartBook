@@ -31,6 +31,10 @@ import ReaderPage from './components/reader/ReaderPage';
 import Analytics from './components/analytics/Analytics';
 import Leaderboard from './components/analytics/Leaderboard';
 import PopularBooks from './components/analytics/PopularBooks';
+import ResetPassword from './components/auth/ResetPassword'; // adjust path if needed
+
+import ConfirmReset from './components/auth/ConfirmReset';
+
 
 function App() {
   return (
@@ -60,6 +64,10 @@ function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/popular" element={<PopularBooks />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/confirm-reset" element={<ConfirmReset />} />
+
+
           </Route>
         </Routes>
       </Router>

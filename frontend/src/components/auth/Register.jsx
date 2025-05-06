@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import GoogleLoginButton from './GoogleLoginButton';
 
 const Register = () => {
   const { login } = useAuth();
@@ -83,6 +84,7 @@ const Register = () => {
               <div className="d-grid mb-3">
                 <Button type="submit" variant="success">Register</Button>
               </div>
+              <GoogleLoginButton />
 
               <div className="text-center">
                 <span>Already have an account? </span>
@@ -94,6 +96,7 @@ const Register = () => {
       </Row>
     </Container>
   );
+  
 };
 
 export default Register;

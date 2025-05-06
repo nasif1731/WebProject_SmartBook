@@ -48,7 +48,8 @@ const PublicBooks = () => {
                   </Card.Subtitle>
                   <Card.Text>
                     <strong>Genre:</strong> {book.genre || 'N/A'} <br />
-                    <strong>Views:</strong> {book.views || 0}
+                    <strong>Views:</strong> {book.views || 0} <br />
+                    <strong>Reviews:</strong> {book.ratingCount || 0}
                   </Card.Text>
                   <div className="d-flex justify-content-between mt-3">
                     <Button

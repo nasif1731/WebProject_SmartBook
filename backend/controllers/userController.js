@@ -56,19 +56,39 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: 'Failed to change password', error: err.message });
   }
 };
-// 📊 Dashboard Data (FIXED)
+// 📊 Dashboard Data 
+
 exports.getDashboardData = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // 🔧 FIXED: Correct field name is uploadedBy, not uploader
     const uploads = await Book.find({ uploadedBy: userId }).sort({ createdAt: -1 });
 
-    const user = await User.findById(userId).populate('readList');
-    const readList = user?.readList || [];
+    const user = await User.findById(userId)
+      .populate('readList')
+      .populate({
+        path: 'readingHistory.book',
+        match: { isPublic: true },
+      });
 
-    res.json({ uploads, readList });
+    const readList = user?.readList || [];
+    const readingHistoryBooks = (user?.readingHistory || [])
+      .map(entry => entry.book)
+      .filter(book => book); // filter out nulls
+
+    // Merge unique books from both readList and readingHistory
+    const allReadBooksMap = new Map();
+    [...readList, ...readingHistoryBooks].forEach(book => {
+      if (book && !allReadBooksMap.has(book._id.toString())) {
+        allReadBooksMap.set(book._id.toString(), book);
+      }
+    });
+
+    const mergedReadBooks = Array.from(allReadBooksMap.values());
+
+    res.json({ uploads, readList: mergedReadBooks });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch dashboard', error: err.message });
   }
 };
+

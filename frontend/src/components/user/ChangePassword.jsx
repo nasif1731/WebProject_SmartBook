@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 
 const ChangePassword = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -90,9 +93,16 @@ const ChangePassword = () => {
               />
             </Form.Group>
 
-            <Button type="submit" variant="primary" className="w-100">
+            <Button type="submit" variant="primary" className="w-100 mb-2">
               Update Password
             </Button>
+
+            {/* 🔗 Forgot Password Button */}
+            <div className="text-center">
+              <Button variant="link" onClick={() => navigate('/forgot-password')}>
+                Forgot Password?
+              </Button>
+            </div>
           </Form>
 
           {success && <Alert variant="success" className="mt-3">✅ Password updated successfully!</Alert>}

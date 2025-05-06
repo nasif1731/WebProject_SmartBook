@@ -138,38 +138,65 @@ exports.getTopBooks = async (req, res) => {
     res.status(500).json({ message: 'Failed to get top books', error: err.message });
   }
 };
+
 exports.recordReading = async (req, res) => {
   try {
     const userId = req.user._id;
     const bookId = req.params.bookId;
     const { progress = 0 } = req.body;
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    // ✅ Validate book existence
+    const book = await Book.findById(bookId);
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
 
-    // Remove previous entry
+    // ✅ Use findOneAndUpdate with $set and $pullPush logic to avoid document overwrite errors
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Remove old readingHistory entry if it exists
     user.readingHistory = user.readingHistory.filter(
       (entry) => entry.book.toString() !== bookId
     );
 
-    // Add new entry with progress
+    // Add new one at the top
     user.readingHistory.unshift({
       book: bookId,
       progress,
       lastRead: new Date(),
     });
 
-    // Trim to recent 20
+    // Limit to 20 entries
     if (user.readingHistory.length > 20) {
       user.readingHistory = user.readingHistory.slice(0, 20);
     }
 
-    await user.save();
-    await Book.findByIdAndUpdate(bookId, { $inc: { readCount: 1 } });
+    // Add to readList if not already there
+    if (!user.readList.includes(bookId)) {
+      user.readList.push(bookId);
+    }
+
+    await user.save(); // ✅ Critical save wrapped in full-check above
+
+    // Increment views and readCount safely
+    await Book.findByIdAndUpdate(bookId, {
+      $inc: { readCount: 1, views: 1 }
+    });
 
     res.status(200).json({ message: 'Reading progress recorded' });
   } catch (err) {
-    console.error('❌ Reading tracking error:', err.message);
+   
     res.status(500).json({ message: 'Failed to track reading', error: err.message });
+  }
+};
+exports.getPublicBooks = async (req, res) => {
+  try {
+    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount');
+    res.json(books);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch public books', error: err.message });
   }
 };

@@ -15,13 +15,15 @@ const BookCard = ({ book }) => {
           <strong>Genre:</strong> {book.genre || 'N/A'} <br />
           <strong>Views:</strong> {book.views || 0} <br />
           <strong>Rating:</strong> {book.averageRating?.toFixed(1) || 'N/A'} ⭐
+          <span className="text-muted"> ({book.ratingCount || 0} reviews)</span>
         </Card.Text>
+
         <div className="d-flex justify-content-between mt-3">
           <Button
             variant="primary"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation(); // Prevent triggering card click
+              e.stopPropagation();
               navigate(`/reader/${book._id}`);
             }}
           >
@@ -35,7 +37,7 @@ const BookCard = ({ book }) => {
               navigate(`/reviews/${book._id}`);
             }}
           >
-            ⭐ Review
+            ⭐ Reviews
           </Button>
         </div>
       </Card.Body>

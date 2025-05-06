@@ -13,6 +13,11 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+
+    // ✅ Prevent concurrent rendering error during redirect
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 0);
   };
 
   return (

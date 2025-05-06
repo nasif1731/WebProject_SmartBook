@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
+const otpRoutes = require('./routes/otpRoutes');
 
 // Connect to MongoDB
 connectDB();
@@ -29,6 +30,7 @@ app.use('/api/books', bookSearchRoutes);         // ✅ Handles /api/books/searc
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/metrics', metricsRoutes);
+app.use('/api/otp', otpRoutes);
 
 // Root
 app.get('/', (req, res) => {
