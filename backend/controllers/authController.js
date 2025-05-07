@@ -3,19 +3,47 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 
+// 👇 node-fetch dynamic import to avoid ESM error
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 // 🔐 Generate JWT
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
+// ✅ reCAPTCHA Verification
+const verifyCaptcha = async (token) => {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  const response = await fetch(`https://www.google.com/recaptcha/api/siteverify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `secret=${secret}&response=${token}`,
+  });
+  return await response.json();
+};
+
 // 📝 Register
 exports.registerUser = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  console.log("📝 Register payload:", req.body); // DEBU
+  const { fullName, email, password, latitude, longitude, captchaToken } = req.body;
+
+  const captchaRes = await verifyCaptcha(captchaToken);
+  console.log("✅ CAPTCHA result (Register):", captchaRes); // DEBUG
+  if (!captchaRes.success) {
+    return res.status(400).json({ message: 'CAPTCHA verification failed' });
+  }
+
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ fullName, email, password });
+    const user = await User.create({
+      fullName,
+      email,
+      password,
+      latitude,
+      longitude,
+    });
 
     res.status(201).json({
       _id: user._id,
@@ -30,7 +58,15 @@ exports.registerUser = async (req, res) => {
 
 // 🔑 Login
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  console.log("📝 login payload:", req.body); // DEBU
+  const { email, password, captchaToken } = req.body;
+
+  const captchaRes = await verifyCaptcha(captchaToken);
+  console.log("✅ CAPTCHA result (Login):", captchaRes); // DEBUG
+  if (!captchaRes.success) {
+    return res.status(400).json({ message: 'CAPTCHA verification failed' });
+  }
+
   try {
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
@@ -51,6 +87,7 @@ exports.loginUser = async (req, res) => {
 // 🔐 Google Sign-In
 exports.googleAuth = async (req, res) => {
   const { name, email, picture } = req.body;
+
   try {
     let user = await User.findOne({ email });
 
@@ -68,6 +105,7 @@ exports.googleAuth = async (req, res) => {
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
+      avatar: user.avatar,
       token,
     });
   } catch (err) {
@@ -103,6 +141,8 @@ exports.sendOtp = async (req, res) => {
     res.status(500).json({ message: 'Something went wrong', error: err.message });
   }
 };
+
+// 🔁 Reset Password
 exports.resetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -122,7 +162,8 @@ exports.resetPassword = async (req, res) => {
     return res.status(500).json({ message: 'Password reset failed', error: err.message });
   }
 };
-// ✅ Verify OTP only
+
+// ✅ Verify OTP
 exports.verifyOtp = async (req, res) => {
   const { email, otpCode } = req.body;
 
@@ -142,7 +183,6 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
-    // ✅ Clear OTP after successful verification
     user.resetOTP = undefined;
     user.resetOTPExpires = undefined;
     await user.save();

@@ -6,18 +6,18 @@ const {
   loginUser,
   googleAuth,
   sendOtp,
-  verifyOtp,        
-  resetPassword    
+  verifyOtp,
+  resetPassword,
 } = require('../controllers/authController');
 
-// 🔐 Auth Routes
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.post('/google', googleAuth);
+// 📝 Registration & Login
+router.post('/register', registerUser);        // New user registration (with geolocation + CAPTCHA)
+router.post('/login', loginUser);              // Email/password login with CAPTCHA
+router.post('/google', googleAuth);            // Google OAuth login
 
-// 🔄 Password Recovery
-router.post('/send-otp', sendOtp);         // ✅ Generate + send OTP
-router.post('/verify-otp', verifyOtp);     // ✅ Verify OTP and clear it
-router.post('/reset-password', resetPassword); // ✅ Final password reset without OTP
+// 🔐 Password Recovery Flow
+router.post('/send-otp', sendOtp);             // Send OTP to user's email
+router.post('/verify-otp', verifyOtp);         // Verify OTP
+router.post('/reset-password', resetPassword); // Reset password after OTP verification
 
 module.exports = router;

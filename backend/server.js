@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+const path = require('path'); // ✅ Declare only once
 const connectDB = require('./config/db');
 const otpRoutes = require('./routes/otpRoutes');
 
@@ -23,14 +23,16 @@ const bookSearchRoutes = require('./routes/bookSearchRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const metricsRoutes = require('./routes/metricsRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);               // ✅ Handles routes like /api/books/:id
-app.use('/api/books', bookSearchRoutes);         // ✅ Handles /api/books/search
+app.use('/api/books', bookRoutes);
+app.use('/api/books', bookSearchRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/otp', otpRoutes);
+app.use('/api/upload', uploadRoutes); // ✅ Avatar upload route
 
 // Root
 app.get('/', (req, res) => {

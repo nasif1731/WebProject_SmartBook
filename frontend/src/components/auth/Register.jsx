@@ -1,18 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import GoogleLoginButton from './GoogleLoginButton';
+import CaptchaBox from './CaptchaBox';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
 const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
+    latitude: null,
+    longitude: null,
   });
+  const [captchaToken, setCaptchaToken] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData((prev) => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }));
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+      }
+    );
+  }, []);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,11 +40,16 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!captchaToken) {
+      return setError("Please verify you're not a robot");
+    }
+
     try {
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, captchaToken }),
       });
 
       const data = await res.json();
@@ -50,7 +75,6 @@ const Register = () => {
                 <Form.Control
                   type="text"
                   name="fullName"
-                  placeholder="Enter your full name"
                   value={formData.fullName}
                   onChange={handleChange}
                   required
@@ -58,11 +82,10 @@ const Register = () => {
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="formEmail">
-                <Form.Label>Email Address</Form.Label>
+                <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
                   name="email"
-                  placeholder="Enter email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -74,16 +97,18 @@ const Register = () => {
                 <Form.Control
                   type="password"
                   name="password"
-                  placeholder="Enter password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                 />
               </Form.Group>
 
+              <CaptchaBox onVerify={(token) => setCaptchaToken(token)} />
+
               <div className="d-grid mb-3">
-                <Button type="submit" variant="success">Register</Button>
+                <Button variant="success" type="submit">Register</Button>
               </div>
+
               <GoogleLoginButton />
 
               <div className="text-center">
@@ -96,7 +121,6 @@ const Register = () => {
       </Row>
     </Container>
   );
-  
 };
 
 export default Register;

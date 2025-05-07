@@ -20,7 +20,7 @@ exports.getProfile = async (req, res) => {
 // ✏️ Profile Update
 exports.updateProfile = async (req, res) => {
   try {
-    const { fullName, avatar, preferences } = req.body;
+    const { fullName, avatar, preferences, latitude, longitude } = req.body;
     const user = await User.findById(req.user._id);
 
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -28,6 +28,8 @@ exports.updateProfile = async (req, res) => {
     if (fullName) user.fullName = fullName;
     if (avatar) user.avatar = avatar;
     if (preferences) user.preferences = preferences;
+    if (latitude) user.latitude = latitude;
+    if (longitude) user.longitude = longitude;
 
     await user.save();
     res.json({ message: 'Profile updated successfully', user });
@@ -56,8 +58,8 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: 'Failed to change password', error: err.message });
   }
 };
-// 📊 Dashboard Data 
 
+// 📊 Dashboard Data 
 exports.getDashboardData = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -91,4 +93,3 @@ exports.getDashboardData = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch dashboard', error: err.message });
   }
 };
-

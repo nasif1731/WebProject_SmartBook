@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -41,11 +41,13 @@ const GoogleLoginButton = () => {
     <div className="my-3 text-center">
       {error && <Alert variant="danger">{error}</Alert>}
       {loading && <Spinner animation="border" variant="primary" className="mb-2" />}
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={() => setError('Google Login Failed')}
-        width="100%"
-      />
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <GoogleLogin
+          onSuccess={handleSuccess}
+          onError={() => setError('Google Login Failed')}
+          width="100%"
+        />
+      </GoogleOAuthProvider>
     </div>
   );
 };

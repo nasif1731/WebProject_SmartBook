@@ -7,6 +7,8 @@ import MainLayout from './components/layout/MainLayout';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
+import ConfirmReset from './components/auth/ConfirmReset';
 
 // 👤 User Pages
 import Profile from './components/user/Profile';
@@ -31,22 +33,20 @@ import ReaderPage from './components/reader/ReaderPage';
 import Analytics from './components/analytics/Analytics';
 import Leaderboard from './components/analytics/Leaderboard';
 import PopularBooks from './components/analytics/PopularBooks';
-import ResetPassword from './components/auth/ResetPassword'; // adjust path if needed
-
-import ConfirmReset from './components/auth/ConfirmReset';
-
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Auth pages without Navbar/Footer */}
+          {/* Auth pages without layout */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/confirm-reset" element={<ConfirmReset />} />
 
-          {/* Layout-wrapped routes */}
+          {/* Pages wrapped with navbar/footer */}
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
@@ -64,10 +64,6 @@ function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/popular" element={<PopularBooks />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/confirm-reset" element={<ConfirmReset />} />
-
-
           </Route>
         </Routes>
       </Router>

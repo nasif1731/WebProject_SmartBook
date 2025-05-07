@@ -42,6 +42,13 @@ const BookDetail = () => {
         <p><strong>Tags:</strong> {book.tags?.map((tag, idx) => (
           <Badge key={idx} bg="secondary" className="me-1">{tag}</Badge>
         ))}</p>
+
+        {/* 🆕 Summary Section */}
+        <div className="mt-4 p-3 border rounded bg-light">
+          <h5 className="fw-bold">📚 Summary</h5>
+          <p className="mb-0">{book.summary || 'No summary available yet.'}</p>
+        </div>
+
         <div className="mt-4 d-flex gap-3">
           <Button variant="primary" onClick={() => navigate(`/reader/${book._id}`)}>📖 Read</Button>
           <Button variant="warning" onClick={() => navigate(`/reviews/${book._id}`)}>⭐ Reviews</Button>

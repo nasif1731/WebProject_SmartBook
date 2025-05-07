@@ -2,32 +2,50 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import GoogleLoginButton from './GoogleLoginButton';
+import CaptchaBox from './CaptchaBox';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [captchaToken, setCaptchaToken] = useState('');
   const [error, setError] = useState('');
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!captchaToken) {
+      return setError("Please complete the CAPTCHA");
+    }
+
     try {
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, captchaToken }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const text = await res.text(); // handle HTML fallback
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        console.error('🔴 Non-JSON response:', text);
+        throw new Error('Server error: Invalid response received');
+      }
+
+      if (!res.ok) throw new Error(data.message || 'Login failed');
       login(data);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Login failed');
     }
   };
 
@@ -45,7 +63,6 @@ const Login = () => {
                 <Form.Control
                   type="email"
                   name="email"
-                  placeholder="Enter email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -57,12 +74,13 @@ const Login = () => {
                 <Form.Control
                   type="password"
                   name="password"
-                  placeholder="Enter password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                 />
               </Form.Group>
+
+              <CaptchaBox onVerify={(token) => setCaptchaToken(token)} />
 
               <div className="d-grid mb-3">
                 <Button variant="primary" type="submit">Login</Button>

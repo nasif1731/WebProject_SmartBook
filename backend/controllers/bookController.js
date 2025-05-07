@@ -1,18 +1,62 @@
 const Book = require('../models/Book');
 const User = require('../models/User');
+const pdf = require('pdf-parse');
+const fs = require('fs');
+const path = require('path');
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
+// 🔍 Extract text from uploaded PDF
+const extractTextFromPDF = async (pdfPath) => {
+  const buffer = fs.readFileSync(pdfPath);
+  const data = await pdf(buffer);
+  return data.text;
+};
+
+const generateSummary = async (text) => {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: `Summarize the following book content:\n\n${text.slice(0, 2000)}` }
+            ]
+          }
+        ]
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      return data.candidates[0].content.parts[0].text.trim();
+    }
+
+    return 'Summary generation failed.';
+  } catch {
+    return 'Summary generation failed.';
+  }
+};
+
+// 📥 Upload Book Controller
 exports.uploadBook = async (req, res) => {
-  console.log("📥 UploadBook route triggered");
-
   try {
     if (!req.body || !req.file) {
-      console.log("❌ req.body:", req.body);
-      console.log("❌ req.file:", req.file);
       return res.status(400).json({ message: "Missing book data or PDF file" });
     }
 
     const { title, author, description, tags, isPublic, coverImageUrl, genre } = req.body;
     const pdfUrl = req.file.path;
+    const pdfPath = path.join(__dirname, '..', req.file.path);
+
+    const pdfText = await extractTextFromPDF(pdfPath);
+    const summary = pdfText
+      ? await generateSummary(pdfText)
+      : 'No readable text found in PDF to summarize.';
 
     const book = await Book.create({
       title,
@@ -24,31 +68,36 @@ exports.uploadBook = async (req, res) => {
       coverImageUrl,
       pdfUrl,
       uploadedBy: req.user._id,
+      summary,
     });
 
-    // ✅ Also push to user's uploadedBooks array
     await User.findByIdAndUpdate(req.user._id, {
       $push: { uploadedBooks: book._id },
     });
 
-    console.log("✅ Book created:", book.title);
     res.status(201).json(book);
   } catch (err) {
-    console.error("❌ Upload failed:", err.message);
     res.status(500).json({ message: 'Upload failed', error: err.message });
   }
 };
 
+// 📚 Get my uploaded books
 exports.getMyBooks = async (req, res) => {
   const books = await Book.find({ uploadedBy: req.user._id });
   res.json(books);
 };
 
+// 🌍 Get all public books
 exports.getPublicBooks = async (req, res) => {
-  const books = await Book.find({ isPublic: true });
-  res.json(books);
+  try {
+    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount');
+    res.json(books);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch public books', error: err.message });
+  }
 };
 
+// ✏️ Edit a book
 exports.editBook = async (req, res) => {
   const book = await Book.findById(req.params.bookId);
   if (!book) return res.status(404).json({ message: 'Book not found' });
@@ -59,11 +108,11 @@ exports.editBook = async (req, res) => {
   res.json(book);
 };
 
+// 🗑️ Delete a book
 exports.deleteBook = async (req, res) => {
   const book = await Book.findById(req.params.bookId);
   if (!book) return res.status(404).json({ message: 'Book not found' });
 
-  // ✅ Remove book ID from user's uploadedBooks
   if (book.uploadedBy) {
     await User.findByIdAndUpdate(book.uploadedBy, {
       $pull: { uploadedBooks: book._id }
@@ -78,6 +127,7 @@ exports.deleteBook = async (req, res) => {
   res.json({ message: 'Book deleted' });
 };
 
+// 📖 Get book by ID
 exports.getBookById = async (req, res) => {
   try {
     const book = await Book.findById(req.params.bookId);
@@ -89,6 +139,7 @@ exports.getBookById = async (req, res) => {
   }
 };
 
+// 🔄 Recently read books
 exports.getRecentlyReadBooks = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -108,6 +159,7 @@ exports.getRecentlyReadBooks = async (req, res) => {
   }
 };
 
+// 🧠 Book recommendations
 exports.getRecommendations = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate('readList');
@@ -128,75 +180,55 @@ exports.getRecommendations = async (req, res) => {
 exports.getTopBooks = async (req, res) => {
   try {
     const books = await Book.find({ isPublic: true })
-      .sort({ views: -1 })
+      .sort({ views: -1, createdAt: -1 }) // fallback sort to include recent books with 0 views
       .limit(10);
 
-    console.log('📘 Top books query result:', books);
     res.json(books);
   } catch (err) {
-    console.error('❌ Top Books Error:', err.message);
     res.status(500).json({ message: 'Failed to get top books', error: err.message });
   }
 };
 
+
+// 📊 Record reading progress
 exports.recordReading = async (req, res) => {
   try {
     const userId = req.user._id;
     const bookId = req.params.bookId;
     const { progress = 0 } = req.body;
 
-    // ✅ Validate book existence
     const book = await Book.findById(bookId);
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
+    if (!book) return res.status(404).json({ message: 'Book not found' });
 
-    // ✅ Use findOneAndUpdate with $set and $pullPush logic to avoid document overwrite errors
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Remove old readingHistory entry if it exists
     user.readingHistory = user.readingHistory.filter(
       (entry) => entry.book.toString() !== bookId
     );
 
-    // Add new one at the top
     user.readingHistory.unshift({
       book: bookId,
       progress,
       lastRead: new Date(),
     });
 
-    // Limit to 20 entries
     if (user.readingHistory.length > 20) {
       user.readingHistory = user.readingHistory.slice(0, 20);
     }
 
-    // Add to readList if not already there
     if (!user.readList.includes(bookId)) {
       user.readList.push(bookId);
     }
 
-    await user.save(); // ✅ Critical save wrapped in full-check above
+    await user.save();
 
-    // Increment views and readCount safely
     await Book.findByIdAndUpdate(bookId, {
       $inc: { readCount: 1, views: 1 }
     });
 
     res.status(200).json({ message: 'Reading progress recorded' });
   } catch (err) {
-   
     res.status(500).json({ message: 'Failed to track reading', error: err.message });
-  }
-};
-exports.getPublicBooks = async (req, res) => {
-  try {
-    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount');
-    res.json(books);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch public books', error: err.message });
   }
 };
