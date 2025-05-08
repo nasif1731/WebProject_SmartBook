@@ -34,6 +34,10 @@ import Analytics from './components/analytics/Analytics';
 import Leaderboard from './components/analytics/Leaderboard';
 import PopularBooks from './components/analytics/PopularBooks';
 
+// 🏠 Main Pages
+import HomePage from './pages/HomePage';
+import AdminDashboard from './pages/AdminDashboard';
+
 function App() {
   return (
     <AuthProvider>
@@ -46,8 +50,12 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/confirm-reset" element={<ConfirmReset />} />
 
+          {/* Admin panel - standalone */}
+          <Route path="/admin" element={<AdminDashboard />} />
+
           {/* Pages wrapped with navbar/footer */}
           <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/change-password" element={<ChangePassword />} />

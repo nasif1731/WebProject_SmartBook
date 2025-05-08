@@ -27,7 +27,6 @@ exports.registerUser = async (req, res) => {
   const { fullName, email, password, latitude, longitude, captchaToken } = req.body;
 
   const captchaRes = await verifyCaptcha(captchaToken);
-  console.log("✅ CAPTCHA result (Register):", captchaRes); // DEBUG
   if (!captchaRes.success) {
     return res.status(400).json({ message: 'CAPTCHA verification failed' });
   }
@@ -62,7 +61,6 @@ exports.loginUser = async (req, res) => {
   const { email, password, captchaToken } = req.body;
 
   const captchaRes = await verifyCaptcha(captchaToken);
-  console.log("✅ CAPTCHA result (Login):", captchaRes); // DEBUG
   if (!captchaRes.success) {
     return res.status(400).json({ message: 'CAPTCHA verification failed' });
   }
@@ -109,7 +107,6 @@ exports.googleAuth = async (req, res) => {
       token,
     });
   } catch (err) {
-    console.error("Google Auth Error:", err.message);
     res.status(500).json({ message: 'Google login failed', error: err.message });
   }
 };
@@ -131,13 +128,12 @@ exports.sendOtp = async (req, res) => {
     try {
       await sendEmail(email, 'SmartBook OTP', `<h3>Your OTP is: ${otp}</h3>`);
     } catch (emailErr) {
-      console.error("❌ Email sending failed:", emailErr.message);
       return res.status(500).json({ message: 'Failed to send email', error: emailErr.message });
     }
 
     res.json({ message: 'OTP sent successfully' });
   } catch (err) {
-    console.error("❌ OTP Error:", err.message);
+  
     res.status(500).json({ message: 'Something went wrong', error: err.message });
   }
 };

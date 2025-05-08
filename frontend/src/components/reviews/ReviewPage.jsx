@@ -9,6 +9,7 @@ import {
   Alert,
   ListGroup,
   Badge,
+  Image,
 } from 'react-bootstrap';
 
 const ReviewPage = () => {
@@ -111,8 +112,21 @@ const ReviewPage = () => {
             <ListGroup>
               {reviews.map((r, idx) => (
                 <ListGroup.Item key={idx}>
-                  <div className="d-flex justify-content-between">
-                    <span>{r.comment || 'No comment provided'}</span>
+                  <div className="d-flex align-items-start justify-content-between">
+                    <div className="d-flex align-items-start">
+                      {r.user?.avatar && (
+                        <Image
+                          src={r.user.avatar}
+                          alt={r.user.fullName}
+                          roundedCircle
+                          style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '12px' }}
+                        />
+                      )}
+                      <div>
+                        <strong>{r.user?.fullName || 'Anonymous'}</strong>
+                        <div className="text-muted small mb-1">{r.comment || 'No comment provided'}</div>
+                      </div>
+                    </div>
                     <Badge bg="warning" text="dark">{r.rating}★</Badge>
                   </div>
                 </ListGroup.Item>

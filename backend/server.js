@@ -1,45 +1,49 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path'); // ✅ Declare only once
+const path = require('path');
 const connectDB = require('./config/db');
-const otpRoutes = require('./routes/otpRoutes');
 
-// Connect to MongoDB
+// 🔌 Connect to MongoDB
 connectDB();
 
+// 🔧 Initialize Express App
 const app = express();
+
+// 🔐 Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploads statically
+// 📂 Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
+// 📦 Import Routes
 const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const bookSearchRoutes = require('./routes/bookSearchRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const metricsRoutes = require('./routes/metricsRoutes');
+const otpRoutes = require('./routes/otpRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 
+// 🔗 Mount Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/books', bookSearchRoutes);
+app.use('/api/books', bookRoutes);          // CRUD, upload, etc.
+app.use('/api/books', bookSearchRoutes);    // search, top, recent, recommendations
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/otp', otpRoutes);
-app.use('/api/upload', uploadRoutes); // ✅ Avatar upload route
+app.use('/api/upload', uploadRoutes);       // avatar upload
 
-// Root
+// 🏠 Root Endpoint
 app.get('/', (req, res) => {
   res.send('📚 SmartBook API is running...');
 });
 
-// Start server
+// 🚀 Start Server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);

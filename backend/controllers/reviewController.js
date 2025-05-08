@@ -15,25 +15,24 @@ exports.addReview = async (req, res) => {
       comment,
     });
 
-    // Get all reviews for this book
+    // Recalculate all reviews
     const reviews = await Review.find({ book: bookId });
 
-    // Calculate new average rating
     const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
     const averageRating = parseFloat((totalRating / reviews.length).toFixed(1));
     const ratingCount = reviews.length;
 
-    // ✅ Update book document (log removed)
+    // ✅ Update book with new stats
     await Book.findByIdAndUpdate(
       bookId,
-      {
-        averageRating,
-        ratingCount,
-      },
+      { averageRating, ratingCount },
       { new: true, runValidators: true }
     );
 
-    res.status(201).json(review);
+    // ✅ Populate user details for response
+    const populatedReview = await review.populate('user', 'fullName avatar');
+
+    res.status(201).json(populatedReview);
   } catch (err) {
     console.error('❌ Failed to add review:', err.message);
     res.status(500).json({ message: 'Failed to add review', error: err.message });
@@ -43,7 +42,10 @@ exports.addReview = async (req, res) => {
 // ✅ Get All Reviews for a Book
 exports.getReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ book: req.params.bookId }).populate('user', 'fullName');
+    const reviews = await Review.find({ book: req.params.bookId })
+      .populate('user', 'fullName avatar')  // Add avatar if needed
+      .sort({ createdAt: -1 });
+
     res.json(reviews);
   } catch (err) {
     console.error('❌ Failed to fetch reviews:', err.message);

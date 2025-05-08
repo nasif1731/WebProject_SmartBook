@@ -7,13 +7,13 @@ const {
   getRecommendations,
   getRecentlyReadBooks
 } = require('../controllers/bookSearchController');
-const {
-  addReview,
-  getReviews
-} = require('../controllers/reviewController');
 
-// 🔍 Smart Search & Filters
-router.get('/search', protect, searchBooks);
+// 🔍 Search
+router.get('/search', searchBooks);
 
+// 📈 Top, 💡 Recommendations, 🔄 Recent
+router.get('/top', getTopBooks);
+router.get('/recommendations', protect, getRecommendations);
+router.get('/recent', protect, getRecentlyReadBooks);
 
 module.exports = router;
