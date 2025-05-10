@@ -190,12 +190,12 @@ const BookManagment = () => {
                     <Button
                       variant="outline-dark"
                       size="sm"
-                      onClick={() => navigate(`/reviews/${book._id}`)}
+                      onClick={() => navigate(`/admin-reviews/${book._id}`)}
                     >
                       ⭐ Reviews
                     </Button>
                     <Button
-                      variant={book.isApproved ? "success" : "outline-dark"}
+                      variant={book.isApproved ? "success" : "outline-dark"}  // Dark green for disapproved
                       size="sm"
                       onClick={() => {
                         setSelectedBook(book);
