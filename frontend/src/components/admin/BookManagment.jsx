@@ -17,7 +17,7 @@ const BookManagment = () => {
   const navigate = useNavigate();
 
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null); // State for the selected book for approval
   const [showModal, setShowModal] = useState(false); // State for controlling modal visibility
 
@@ -43,7 +43,7 @@ const BookManagment = () => {
       if (data.length === 0) {
         setBooks([]);
       } else {
-        setBooks(data);  
+        setBooks(data);
       }
     } catch (err) {
       console.error("❌ Public books fetch error:", err.message);
@@ -108,7 +108,7 @@ const BookManagment = () => {
   };
 
   const handleUploadBook = () => {
-    navigate("/admin/upload-books"); 
+    navigate("/admin/upload-books");
   };
 
   return (
@@ -169,10 +169,7 @@ const BookManagment = () => {
           ) : (
             <ListGroup>
               {books.map((book) => (
-                <ListGroup.Item
-                  key={book._id}
-                  className="d-flex justify-content-between align-items-center flex-wrap"
-                >
+                <ListGroup.Item key={book._id} className="d-flex justify-content-between align-items-center flex-wrap">
                   <div className="mb-2 mb-md-0">
                     <strong>{book.title}</strong>{" "}
                     <span className="text-muted">by {book.author || "Unknown"}</span>
@@ -195,7 +192,8 @@ const BookManagment = () => {
                       ⭐ Reviews
                     </Button>
                     <Button
-                      variant={book.isApproved ? "success" : "outline-dark"}  // Dark green for disapproved
+                    
+                      variant={book.isApproved ? "success" : "outline-dark"} // Correct the logic for approval status
                       size="sm"
                       onClick={() => {
                         setSelectedBook(book);
@@ -244,7 +242,7 @@ const BookManagment = () => {
                 variant="danger"
                 onClick={() => handleBookApproval(selectedBook._id, "delete")}
               >
-                Delete
+                Disapprove
               </Button>
             </Modal.Footer>
           </Modal>

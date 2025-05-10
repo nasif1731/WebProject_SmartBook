@@ -7,7 +7,6 @@ exports.searchBooks = async (req, res) => {
     const { q, genre, author, tags, sortBy = 'createdAt', order = 'desc' } = req.query;
     const query = [];
 
-    console.log('📥 Incoming Params:', req.query);
 
     if (q) {
       const regex = new RegExp(q, 'i');
@@ -23,7 +22,6 @@ exports.searchBooks = async (req, res) => {
 
     const mongoQuery = query.length > 0 ? { $and: query } : {};
 
-    console.log('🔍 Final Mongo Query:', JSON.stringify(mongoQuery));
 
     const sortFields = ['createdAt', 'views'];
     const safeSort = sortFields.includes(sortBy) ? sortBy : 'createdAt';
@@ -33,7 +31,6 @@ exports.searchBooks = async (req, res) => {
 
     res.json(books);
   } catch (err) {
-    console.error('❌ searchBooks Error:', err.stack || err);
     res.status(500).json({ message: 'Failed to fetch book', error: err.message });
   }
 };

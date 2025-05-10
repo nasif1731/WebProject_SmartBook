@@ -15,20 +15,25 @@ import {
 const ReviewPage = () => {
   const { bookId } = useParams();
   const { user } = useAuth();
+
   const [reviews, setReviews] = useState([]);
   const [text, setText] = useState('');
   const [rating, setRating] = useState(5);
   const [error, setError] = useState('');
 
-  const fetchReviews = async () => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}/reviews`);
-      const data = await res.json();
-      setReviews(data || []);
-    } catch (err) {
-      setError('Failed to load reviews');
-    }
-  };
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}/reviews`);
+        const data = await res.json();
+        setReviews(data || []);
+      } catch (err) {
+        setError('Failed to load reviews');
+      }
+    };
+
+    fetchReviews();
+  }, [bookId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,16 +59,26 @@ const ReviewPage = () => {
 
       setText('');
       setRating(5);
-      fetchReviews();
+      // re-fetch updated reviews
+      const updated = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}/reviews`);
+      setReviews(await updated.json());
     } catch (err) {
       setError(err.message);
     }
   };
 
-  useEffect(() => {
-    fetchReviews();
-    // eslint-disable-next-line
-  }, []);
+  // ✅ login guard
+  if (!user || !user.token) {
+    return (
+      <Container className="py-5 text-center">
+        <Alert variant="warning">
+          🔒 Please <a href="/login"><strong>login</strong></a> to write and view book reviews.
+          <br />
+          <small className="text-muted">This feature is available only to logged-in users.</small>
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <div className="bg-light min-vh-100 py-5">
@@ -96,9 +111,7 @@ const ReviewPage = () => {
               />
             </Form.Group>
 
-            <Button variant="primary" type="submit">
-              Submit Review
-            </Button>
+            <Button variant="primary" type="submit">Submit Review</Button>
           </Form>
 
           {error && <Alert variant="danger" className="mt-3">❌ {error}</Alert>}

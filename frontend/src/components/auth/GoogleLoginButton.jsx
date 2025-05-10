@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../context/AuthContext';
@@ -10,12 +10,30 @@ const GoogleLoginButton = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
+
+  // 📍 Get user's location on component mount
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (err) => {
+        console.warn('Location access denied or unavailable', err);
+      }
+    );
+  }, []);
 
   const handleSuccess = async (credentialResponse) => {
     setError('');
     setLoading(true);
+
     try {
       const decoded = jwtDecode(credentialResponse.credential);
+
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -23,6 +41,8 @@ const GoogleLoginButton = () => {
           name: decoded.name,
           email: decoded.email,
           picture: decoded.picture,
+          latitude: location.latitude,
+          longitude: location.longitude,
         }),
       });
 

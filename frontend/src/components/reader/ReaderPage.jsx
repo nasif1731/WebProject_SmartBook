@@ -17,6 +17,8 @@ const ReaderPage = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
+    if (!user?.token) return;
+
     const fetchBook = async () => {
       try {
         const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}`, {
@@ -47,7 +49,7 @@ const ReaderPage = () => {
 
     fetchBook();
     recordInitialReading();
-  }, [bookId, user.token]);
+  }, [bookId, user]);
 
   const handleProgressUpdate = async () => {
     setSaving(true);
@@ -70,6 +72,21 @@ const ReaderPage = () => {
       setTimeout(() => setSuccess(''), 2000);
     }
   };
+
+  // ✅ Safe JSX conditional return (hooks are already called above)
+  if (!user || !user.token) {
+    return (
+      <Container className="py-5 text-center">
+        <Alert variant="warning">
+          🔒 Please <a href="/login"><strong>login</strong></a> to access the book reader.
+          <br />
+          <small className="text-muted">
+            Reading, progress tracking, and reviews are for logged-in users only.
+          </small>
+        </Alert>
+      </Container>
+    );
+  }
 
   if (error) return <Alert variant="danger">{error}</Alert>;
   if (!book) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
@@ -107,7 +124,11 @@ const ReaderPage = () => {
 
         {success && <Alert variant="success" className="mt-2">{success}</Alert>}
 
-        <Button variant="outline-primary" onClick={() => navigate(`/reviews/${book._id}`)} className="mt-3">
+        <Button
+          variant="outline-primary"
+          onClick={() => navigate(`/reviews/${book._id}`)}
+          className="mt-3"
+        >
           ✍️ Write a Review
         </Button>
       </Card>

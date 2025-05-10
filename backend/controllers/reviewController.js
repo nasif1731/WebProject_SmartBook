@@ -34,7 +34,7 @@ exports.addReview = async (req, res) => {
 
     res.status(201).json(populatedReview);
   } catch (err) {
-    console.error('❌ Failed to add review:', err.message);
+  
     res.status(500).json({ message: 'Failed to add review', error: err.message });
   }
 };
@@ -48,7 +48,7 @@ exports.getReviews = async (req, res) => {
 
     res.json(reviews);
   } catch (err) {
-    console.error('❌ Failed to fetch reviews:', err.message);
+  
     res.status(500).json({ message: 'Failed to fetch reviews', error: err.message });
   }
 };
