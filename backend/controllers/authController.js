@@ -23,7 +23,7 @@ const verifyCaptcha = async (token) => {
 
 // 📝 Register
 exports.registerUser = async (req, res) => {
-  console.log("📝 Register payload:", req.body); // DEBU
+ 
   const { fullName, email, password, latitude, longitude, captchaToken } = req.body;
 
   const captchaRes = await verifyCaptcha(captchaToken);
@@ -58,7 +58,7 @@ exports.registerUser = async (req, res) => {
 // 🔑 Login
 
 exports.loginUser = async (req, res) => {
-  console.log("📝 login payload:", req.body); // DEBUG
+  
 
   const { email, password, captchaToken, latitude, longitude } = req.body;
 
