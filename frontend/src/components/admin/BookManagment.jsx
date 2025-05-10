@@ -79,17 +79,17 @@ const BookManagment = () => {
 
   const handleBookApproval = async (bookId, action) => {
     try {
-      const updatedBookData = { isApproved: action === "approve" };
+      
 
       const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/admin/moderate/${bookId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify(updatedBookData),
+          body: JSON.stringify({ isApproved: action === "approve" }),
         }
       );
 

@@ -14,18 +14,22 @@ const getBooksForAdmin = async (req, res) => {
 // Moderate a book (flag for review/approve)
 const moderateBook = async (req, res) => {
   const { bookId } = req.params;
+  const { isApproved } = req.body;
+
   try {
     const book = await Book.findById(bookId);
     if (!book) return res.status(404).json({ message: 'Book not found' });
 
-    // Flag book as 'not approved' for review
-    book.isPublic = false;
+    book.isApproved = isApproved; // ✅ actually set the value from frontend
     await book.save();
-    res.json({ message: 'Book flagged for moderation' });
+
+    res.json({ message: 'Book updated successfully', book });
   } catch (error) {
+    console.error('❌ Moderate book error:', error);
     res.status(500).json({ message: 'Error moderating book' });
   }
 };
+
 
 // Get all users (admin only)
 const getUsers = async (req, res) => {

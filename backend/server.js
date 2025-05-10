@@ -22,6 +22,7 @@ app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars
 app.use('/uploads/covers', express.static(path.join(__dirname, 'uploads/covers')));
 
 // 📦 Import Routes
+const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const bookSearchRoutes = require('./routes/bookSearchRoutes');
@@ -32,6 +33,7 @@ const otpRoutes = require('./routes/otpRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 
 // 🔗 Mount Routes
+app.use('/api/admin', adminRoutes); // ✅ this is missing!
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);          // CRUD, upload, etc.
 app.use('/api/book-search', bookSearchRoutes);    // search, top, recent, recommendations
