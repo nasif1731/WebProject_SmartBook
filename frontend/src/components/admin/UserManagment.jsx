@@ -13,7 +13,7 @@ import {
   ListGroup,
   Badge,
 } from "react-bootstrap";
-import { BsPersonCircle, BsBarChartFill,BsBookFill,BsFillPencilFill, BsTrash, BsBook, BsPeople } from "react-icons/bs";
+import { BsPersonCircle, BsBarChartFill,BsBookFill, BsTrash, BsBook, BsPeople } from "react-icons/bs";
 
 const UserPage = () => {
   const { user } = useAuth();
@@ -25,8 +25,8 @@ const UserPage = () => {
   const [readListFilter, setReadListFilter] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [sortOrderUploadedBooks, setSortOrderUploadedBooks] = useState(true); // true for ascending, false for descending
-  const [sortOrderReadList, setSortOrderReadList] = useState(true); // true for ascending, false for descending
+  const [sortOrderUploadedBooks] = useState(true); // true for ascending, false for descending
+  const [sortOrderReadList] = useState(true); // true for ascending, false for descending
   const [activeTab, setActiveTab] = useState("users"); // Added activeTab state to manage tab selection
 
   // Fetch users from the API
@@ -117,29 +117,6 @@ const UserPage = () => {
     }
   };
 
-  // Handle promoting a user to admin
-  const handleEditUserRole = async (userId, role) => {
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/users/${userId}/role`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ role }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to promote user");
-
-      fetchUsers();
-    } catch (err) {
-      console.error("❌ Promote user error:", err.message);
-      setError(`Failed to promote user: ${err.message}`);
-    }
-  };
 
   return (
     <div className="d-flex">

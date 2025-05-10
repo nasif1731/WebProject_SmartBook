@@ -17,7 +17,7 @@ const AdminProfile = () => {
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab] = useState('profile');
 
   useEffect(() => {
     if (!user?.token) return;

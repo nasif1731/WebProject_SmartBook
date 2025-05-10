@@ -36,9 +36,9 @@ import PopularBooks from './components/analytics/PopularBooks';
 
 // 🏠 Main Pages
 import HomePage from './pages/HomePage';
+
 import AdminDashboard from './components/admin/AdminDashboard';
-import AdminLogin from './components/auth/AdminLogin';
-import AdminLibraryPage from './components/admin/BookManagment';
+import BookManagment from './components/admin/BookManagment';
 import AdminUploadBook from './components/admin/AdminUploadBook';
 import UserManagment from './components/admin/UserManagment';
 import AdminProfile from './components/admin/AdminProfile';
@@ -55,9 +55,9 @@ function App() {
           <Route path="/confirm-reset" element={<ConfirmReset />} />
 
           {/* Admin panel - standalone */}
-          <Route path="/adminlogin" element={<AdminLogin />} />
+          
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/library" element={<AdminLibraryPage />}/>
+          <Route path="/admin/books" element={<BookManagment />}/>
           <Route path="/admin/upload-books" element={<AdminUploadBook />}/>
           <Route path="/admin/users" element={<UserManagment />}/>
           <Route path="/admin/profile" element={<AdminProfile />}/>

@@ -43,8 +43,9 @@ const Login = () => {
 
       if (!res.ok) throw new Error(data.message || 'Login failed');
       login(data);
+      login(data);
       if (data.isAdmin) {
-        throw new Error('Invalid Credentials');
+        navigate('/admin-dashboard');
       } else {
         navigate('/dashboard');
       }

@@ -177,7 +177,7 @@ const AdminDashboard = () => {
             <Table responsive hover>
               <thead>
                 <tr>
-                  <th>Date</th>
+                  
                   <th>Action</th>
                   <th>User</th>
                   <th>Details</th>
@@ -186,7 +186,7 @@ const AdminDashboard = () => {
               <tbody>
                 {reports.map((log, i) => (
                   <tr key={i}>
-                    <td>{new Date(log.date).toLocaleString()}</td>
+                    
                     <td>{log.action}</td>
                     <td>{log.user}</td>
                     <td>{log.details}</td>
