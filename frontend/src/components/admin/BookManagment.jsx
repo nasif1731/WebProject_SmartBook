@@ -183,7 +183,7 @@ const BookManagment = () => {
                       variant="outline-primary"
                       size="sm"
                       className="me-2"
-                      onClick={() => navigate(`/reader/${book._id}`)}
+                      onClick={() => navigate(`/read-books/${book._id}`)}
                     >
                       📖 Read
                     </Button>
