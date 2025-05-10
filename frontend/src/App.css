@@ -343,3 +343,19 @@ body {
 .neon-border {
   box-shadow: 0 0 5px rgba(109, 40, 217, 0.7), 0 0 10px rgba(109, 40, 217, 0.5);
 }
+.popular-books-container {
+  padding: 1rem;
+}
+
+/* Responsive grid: each card max 300px wide */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.book-grid-item {
+  max-width: 300px;
+  margin: 0 auto;
+}

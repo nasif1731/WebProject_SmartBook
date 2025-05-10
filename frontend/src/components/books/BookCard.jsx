@@ -1,30 +1,48 @@
-import { useNavigate } from 'react-router-dom';
-import { Card, Button } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
+import { Card, Button } from "react-bootstrap";
 
 const BookCard = ({ book }) => {
   const navigate = useNavigate();
 
-  const shortSummary = book.summary?.length > 120
-    ? book.summary.slice(0, 120) + '...'
-    : book.summary;
+  const shortSummary =
+    book.summary?.length > 120
+      ? book.summary.slice(0, 120) + "..."
+      : book.summary;
 
   return (
-    <Card className="h-100 shadow-sm border" style={{ cursor: 'pointer' }} onClick={() => navigate(`/book/${book._id}`)}>
+    <Card
+      className="h-100 shadow-sm border"
+      style={{ cursor: "pointer" }}
+      onClick={() => navigate(`/book/${book._id}`)}
+    >
+      {book.coverImageUrl && (
+        <Card.Img
+          variant="top"
+          src={book.coverImageUrl?.startsWith("http")
+            ? book.coverImageUrl 
+            : `${process.env.REACT_APP_API_BASE_URL}${book.coverImageUrl}`}
+          style={{ objectFit: "cover", height: "220px" }}
+          alt="Book Cover"
+        />
+      )}
       <Card.Body>
         <Card.Title>{book.title}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">
-          {book.author || 'Unknown'}
+          {book.author || "Unknown"}
         </Card.Subtitle>
 
         <Card.Text>
-  <strong>Genre:</strong> {book.genre || 'N/A'} <br />
-  <strong>Views:</strong> {book.views || 0} <br />
-  <strong>Reviews:</strong> <span className="text-muted">{book.ratingCount || 0} reviews</span>
-</Card.Text>
-
+          <strong>Genre:</strong> {book.genre || "N/A"} <br />
+          <strong>Views:</strong> {book.views || 0} <br />
+          <strong>Reviews:</strong>{" "}
+          <span className="text-muted">{book.ratingCount || 0} reviews</span>
+        </Card.Text>
 
         {book.summary && (
-          <Card.Text className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.9rem' }}>
+          <Card.Text
+            className="text-muted"
+            style={{ fontStyle: "italic", fontSize: "0.9rem" }}
+          >
             {shortSummary}
           </Card.Text>
         )}

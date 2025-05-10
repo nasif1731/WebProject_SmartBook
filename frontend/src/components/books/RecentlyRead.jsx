@@ -1,26 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Container, Card, Button, Alert, Row, Col, Spinner } from 'react-bootstrap';
+import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Card,
+  Button,
+  Alert,
+  Row,
+  Col,
+  Spinner,
+} from "react-bootstrap";
 
 const RecentlyRead = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [books, setBooks] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRecentlyRead = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/book-search/recent`, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
+        const res = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/api/book-search/recent`,
+          {
+            headers: { Authorization: `Bearer ${user.token}` },
+          }
+        );
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
         setBooks(data);
       } catch (err) {
-        setError(err.message || 'Failed to load recently read books');
+        setError(err.message || "Failed to load recently read books");
       } finally {
         setLoading(false);
       }
@@ -45,16 +56,32 @@ const RecentlyRead = () => {
           {books.map((book) => (
             <Col key={book._id}>
               <Card className="h-100 shadow-sm">
+                {book.coverImageUrl && (
+                  <Card.Img
+                    variant="top"
+                    src={book.coverImageUrl?.startsWith("http")
+                      ? book.coverImageUrl 
+                      : `${process.env.REACT_APP_API_BASE_URL}${book.coverImageUrl}`}
+                    style={{ objectFit: "cover", height: "220px" }}
+                    alt="Book Cover"
+                  />
+                )}
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    by {book.author || 'Unknown'}
+                    by {book.author || "Unknown"}
                   </Card.Subtitle>
                   <div className="d-flex justify-content-between mt-3">
-                    <Button variant="outline-primary" onClick={() => navigate(`/reader/${book._id}`)}>
+                    <Button
+                      variant="outline-primary"
+                      onClick={() => navigate(`/reader/${book._id}`)}
+                    >
                       📖 Continue
                     </Button>
-                    <Button variant="outline-warning" onClick={() => navigate(`/reviews/${book._id}`)}>
+                    <Button
+                      variant="outline-warning"
+                      onClick={() => navigate(`/reviews/${book._id}`)}
+                    >
                       ⭐ Reviews
                     </Button>
                   </div>

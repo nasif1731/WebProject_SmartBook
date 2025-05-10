@@ -1,19 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Card, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Card,
+  Button,
+  Row,
+  Col,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
 
 const PublicBooks = () => {
   const [books, setBooks] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPublicBooks = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/public`);
+        const res = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/api/books/public`
+        );
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Failed to load public books');
+        if (!res.ok)
+          throw new Error(data.message || "Failed to load public books");
         setBooks(data);
       } catch (err) {
         setError(err.message);
@@ -41,25 +52,44 @@ const PublicBooks = () => {
           {books.map((book) => {
             const shortSummary =
               book.summary?.length > 120
-                ? book.summary.slice(0, 120) + '...'
+                ? book.summary.slice(0, 120) + "..."
                 : book.summary;
 
             return (
               <Col key={book._id}>
-                <Card className="h-100 shadow-sm" style={{ cursor: 'pointer' }} onClick={() => navigate(`/book/${book._id}`)}>
+                <Card
+                  className="h-100 shadow-sm"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/book/${book._id}`)}
+                >
+                  {book.coverImageUrl && (
+                    <Card.Img
+                      variant="top"
+                      src={book.coverImageUrl?.startsWith("http")
+                        ? book.coverImageUrl 
+                        : `${process.env.REACT_APP_API_BASE_URL}${book.coverImageUrl}`}
+                      style={{ objectFit: "cover", height: "220px" }}
+                      alt="Book Cover"
+                    />
+                  )}
                   <Card.Body>
                     <Card.Title>{book.title}</Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
-                      by {book.author || 'Unknown'}
+                      by {book.author || "Unknown"}
                     </Card.Subtitle>
                     <Card.Text>
-                      <strong>Genre:</strong> {book.genre || 'N/A'} <br />
+                      <strong>Genre:</strong> {book.genre || "N/A"} <br />
                       <strong>Views:</strong> {book.views || 0} <br />
-                      <strong>Reviews:</strong>{' '}
-                      <span className="text-muted">{book.ratingCount || 0} reviews</span>
+                      <strong>Reviews:</strong>{" "}
+                      <span className="text-muted">
+                        {book.ratingCount || 0} reviews
+                      </span>
                     </Card.Text>
                     {book.summary && (
-                      <Card.Text className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.9rem' }}>
+                      <Card.Text
+                        className="text-muted"
+                        style={{ fontStyle: "italic", fontSize: "0.9rem" }}
+                      >
                         {shortSummary}
                       </Card.Text>
                     )}
