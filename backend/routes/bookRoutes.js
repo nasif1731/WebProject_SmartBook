@@ -1,4 +1,3 @@
-// ✅ routes/bookRoutes.js
 const express = require('express');
 const router = express.Router();
 const {
@@ -12,9 +11,10 @@ const {
   getRecommendations,
   getTopBooks,
   recordReading,
+  getAllBooks
 } = require('../controllers/bookController');
 const { addReview, getReviews } = require('../controllers/reviewController');
-
+const { admin  } = require('../middleware/adminMiddleware'); // Adjust path if needed
 const upload = require('../middleware/uploadMiddleware');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -22,6 +22,7 @@ const { protect } = require('../middleware/authMiddleware');
 router.post('/upload', protect, upload.single('pdf'), uploadBook);
 router.get('/my', protect, getMyBooks);
 router.get('/public', getPublicBooks);
+router.get('/all', protect, admin , getAllBooks); // Ensure isAdmin is used properly
 
 router.get('/top', getTopBooks);
 router.get('/recommendations', protect, getRecommendations);

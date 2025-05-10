@@ -3,6 +3,8 @@ const User = require('../models/User');
 const pdf = require('pdf-parse');
 const fs = require('fs');
 const path = require('path');
+const { deleteBook } = require('../controllers/bookController');
+
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 // 🔍 Extract text from uploaded PDF
@@ -90,8 +92,9 @@ exports.getMyBooks = async (req, res) => {
 // 🌍 Get all public books
 exports.getPublicBooks = async (req, res) => {
   try {
-    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount');
-    res.json(books);
+    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount summary ');
+    res.setHeader('Content-Type', 'application/json'); // Ensure the response type is JSO
+    res.json(books);  // Ensure this is a JSON response
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch public books', error: err.message });
   }
@@ -230,5 +233,16 @@ exports.recordReading = async (req, res) => {
     res.status(200).json({ message: 'Reading progress recorded' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to track reading', error: err.message });
+  }
+};
+
+// 📚 Get all books (admin only)
+exports.getAllBooks = async (req, res) => {
+  try {
+    const books = await Book.find(); // Fetches all, regardless of isPublic
+    console.log(books)
+    res.json(books);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch all books', error: err.message });
   }
 };

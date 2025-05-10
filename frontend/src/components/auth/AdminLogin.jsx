@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import GoogleLoginButton from './GoogleLoginButton';
 import CaptchaBox from './CaptchaBox';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
-const Login = () => {
+const AdminLogin = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -44,7 +43,7 @@ const Login = () => {
       if (!res.ok) throw new Error(data.message || 'Login failed');
       login(data);
       if (data.isAdmin) {
-        throw new Error('Invalid Credentials');
+        navigate('/admin-dashboard');
       } else {
         navigate('/dashboard');
       }
@@ -90,12 +89,6 @@ const Login = () => {
                 <Button variant="primary" type="submit">Login</Button>
               </div>
 
-              <GoogleLoginButton />
-
-              <div className="d-flex justify-content-between mt-3">
-                <Link to="/forgot-password">Forgot Password?</Link>
-                <Link to="/register">New user? Register</Link>
-              </div>
             </Form>
           </Card>
         </Col>
@@ -104,4 +97,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;

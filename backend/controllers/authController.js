@@ -57,25 +57,33 @@ exports.registerUser = async (req, res) => {
 
 // 🔑 Login
 exports.loginUser = async (req, res) => {
-  console.log("📝 login payload:", req.body); // DEBU
+  console.log("📝 login payload:", req.body); // DEBUG
+
   const { email, password, captchaToken } = req.body;
 
+  // Verify CAPTCHA
   const captchaRes = await verifyCaptcha(captchaToken);
   if (!captchaRes.success) {
     return res.status(400).json({ message: 'CAPTCHA verification failed' });
   }
 
   try {
+    // Find the user by email
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // If user is found, check if they are an admin
+    const isAdmin = user.isAdmin; // Assuming isAdmin is a boolean field in your User model
+
+    // Respond with user data, including isAdmin status
     res.json({
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      token: generateToken(user._id),
+      isAdmin, // Include the isAdmin status in the response
+      token: generateToken(user._id), // JWT token
     });
   } catch (err) {
     res.status(500).json({ message: 'Login error', error: err.message });

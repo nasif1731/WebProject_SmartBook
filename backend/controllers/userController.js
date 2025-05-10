@@ -93,3 +93,26 @@ exports.getDashboardData = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch dashboard', error: err.message });
   }
 };
+
+exports.getAllProfiles = async (req, res) => {
+  try {
+    // Only allow admins to fetch all profiles
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied. Admins only.' });
+    }
+
+    // Fetch all users, exclude password, and populate related fields like readList and uploadedBooks
+    const users = await User.find()
+      .select('-password') // Don't return password for security
+      .populate('readList uploadedBooks'); // Populate related fields (if any)
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'No users found' });
+    }
+    console.log(users)
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch users', error: err.message });
+  }
+};
+

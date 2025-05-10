@@ -36,8 +36,12 @@ import PopularBooks from './components/analytics/PopularBooks';
 
 // 🏠 Main Pages
 import HomePage from './pages/HomePage';
-import AdminDashboard from './pages/AdminDashboard';
-
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminLogin from './components/auth/AdminLogin';
+import AdminLibraryPage from './components/admin/BookManagment';
+import AdminUploadBook from './components/admin/AdminUploadBook';
+import UserManagment from './components/admin/UserManagment';
+import AdminProfile from './components/admin/AdminProfile';
 function App() {
   return (
     <AuthProvider>
@@ -51,11 +55,16 @@ function App() {
           <Route path="/confirm-reset" element={<ConfirmReset />} />
 
           {/* Admin panel - standalone */}
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/adminlogin" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/library" element={<AdminLibraryPage />}/>
+          <Route path="/admin/upload-books" element={<AdminUploadBook />}/>
+          <Route path="/admin/users" element={<UserManagment />}/>
+          <Route path="/admin/profile" element={<AdminProfile />}/>
 
           {/* Pages wrapped with navbar/footer */}
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/change-password" element={<ChangePassword />} />
