@@ -92,7 +92,7 @@ exports.getMyBooks = async (req, res) => {
 // 🌍 Get all public books
 exports.getPublicBooks = async (req, res) => {
   try {
-    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount summary ');
+    const books = await Book.find({ isPublic: true }).select('title author genre views ratingCount summary isPublic isApproved ');
     res.setHeader('Content-Type', 'application/json'); // Ensure the response type is JSO
     res.json(books);  // Ensure this is a JSON response
   } catch (err) {
