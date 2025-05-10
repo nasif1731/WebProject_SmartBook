@@ -117,7 +117,6 @@ const UserPage = () => {
     }
   };
 
-
   return (
     <div className="d-flex">
       {/* Sidebar */}
@@ -154,11 +153,16 @@ const UserPage = () => {
             <li className="nav-item mb-2">
               <button
                 className={`nav-link btn ${activeTab === "books" ? "text-primary" : "text-white"}`}
-                onClick={() => navigate("/admin/library")}
+                onClick={() => navigate("/admin/books")}
               >
                 <BsBookFill className="me-2" /> Books
               </button>
             </li>
+            <li className="nav-item mb-2">
+                          <button className="nav-link btn text-white" onClick={() => navigate("/login")}>
+                            <BsPersonCircle className="me-2" /> Logout
+                          </button>
+                        </li>
           </ul>
         </div>
       </div>

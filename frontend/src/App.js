@@ -42,6 +42,8 @@ import BookManagment from './components/admin/BookManagment';
 import AdminUploadBook from './components/admin/AdminUploadBook';
 import UserManagment from './components/admin/UserManagment';
 import AdminProfile from './components/admin/AdminProfile';
+import AdminReview from './components/admin/AdminReview';
+import AdminReaderPage  from './components/admin/AdminReaderPage ';
 function App() {
   return (
     <AuthProvider>
@@ -61,6 +63,8 @@ function App() {
           <Route path="/admin/upload-books" element={<AdminUploadBook />}/>
           <Route path="/admin/users" element={<UserManagment />}/>
           <Route path="/admin/profile" element={<AdminProfile />}/>
+          <Route path="/admin-reviews/:bookId" element={<AdminReview />}/>
+          <Route path="/read-books/:bookId" element={<AdminReaderPage />} />
 
           {/* Pages wrapped with navbar/footer */}
           <Route path="/" element={<MainLayout />}>

@@ -56,7 +56,7 @@ const generateLogsFromProfiles = (users) => {
 };
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Destructure logout function from useAuth
   const navigate = useNavigate();
 
   const [totalUsers, setTotalUsers] = useState(0);
@@ -177,7 +177,6 @@ const AdminDashboard = () => {
             <Table responsive hover>
               <thead>
                 <tr>
-                  
                   <th>Action</th>
                   <th>User</th>
                   <th>Details</th>
@@ -186,7 +185,6 @@ const AdminDashboard = () => {
               <tbody>
                 {reports.map((log, i) => (
                   <tr key={i}>
-                    
                     <td>{log.action}</td>
                     <td>{log.user}</td>
                     <td>{log.details}</td>
@@ -262,8 +260,13 @@ const AdminDashboard = () => {
               </button>
             </li>
             <li className="nav-item mb-2">
-              <button className="nav-link btn text-white" onClick={() => navigate("/admin/library")}>
+              <button className="nav-link btn text-white" onClick={() => navigate("/admin/books")}>
                 <BsBookFill className="me-2" /> Books
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button className="nav-link btn text-white" onClick={() => navigate("/login")}>
+                <BsPersonCircle className="me-2" /> Logout
               </button>
             </li>
           </ul>
