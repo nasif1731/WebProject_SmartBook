@@ -12,7 +12,7 @@ const Recommendations = () => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/recommendations`, {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/book-search/recommendations`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },

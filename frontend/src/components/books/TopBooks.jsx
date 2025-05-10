@@ -12,7 +12,7 @@ const TopBooks = () => {
   useEffect(() => {
     const fetchTopBooks = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/top`, {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/book-search/top`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },

@@ -13,7 +13,7 @@ const RecentlyRead = () => {
   useEffect(() => {
     const fetchRecentlyRead = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/recent`, {
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/book-search/recent`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await res.json();

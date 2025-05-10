@@ -41,7 +41,7 @@ const LibraryPage = () => {
     try {
       if (!user?.token) throw new Error("User not authenticated");
 
-      const url = new URL(`${process.env.REACT_APP_API_BASE_URL}/api/books/search`);
+      const url = new URL(`${process.env.REACT_APP_API_BASE_URL}/api/book-search/search`);
       const params = {
         q: query,
         genre,

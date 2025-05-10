@@ -1,14 +1,19 @@
+// backend/middleware/uploadAvatarMiddleware.js
 const multer = require('multer');
 const path = require('path');
 
-// Set up storage location and filename pattern
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) =>
-    cb(null, `avatar-${Date.now()}${path.extname(file.originalname)}`),
+  destination: (req, file, cb) => {
+    const isAvatar = req.originalUrl.includes('avatar');
+    const folder = isAvatar ? 'uploads/avatars/' : 'uploads/covers/';
+    cb(null, folder);
+  },
+  filename: (req, file, cb) => {
+    const prefix = req.originalUrl.includes('avatar') ? 'avatar' : 'cover';
+    cb(null, `${prefix}-${Date.now()}${path.extname(file.originalname)}`);
+  },
 });
 
-// Only allow jpg, jpeg, and png files
 const fileFilter = (req, file, cb) => {
   const filetypes = /jpg|jpeg|png/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -21,7 +26,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Export multer instance (not .single)
 const upload = multer({ storage, fileFilter });
 
 module.exports = upload;
