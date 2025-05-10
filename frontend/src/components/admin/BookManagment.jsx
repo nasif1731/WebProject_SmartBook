@@ -5,7 +5,6 @@ import {
   Container,
   Button,
   Card,
-  Alert,
   Spinner,
   ListGroup,
   Badge,
@@ -13,20 +12,17 @@ import {
 } from "react-bootstrap";
 import { BsPersonCircle, BsBook, BsBarChartFill, BsPeople, BsBookFill } from "react-icons/bs";
 
-
 const BookManagment = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [books, setBooks] = useState([]);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true); 
   const [selectedBook, setSelectedBook] = useState(null); // State for the selected book for approval
   const [showModal, setShowModal] = useState(false); // State for controlling modal visibility
 
   // Fetch books from the API
   const fetchBooks = useCallback(async () => {
-    setError("");
     setLoading(true);
 
     try {
@@ -45,14 +41,13 @@ const BookManagment = () => {
 
       const data = await res.json();
       if (data.length === 0) {
-        setError("No public books found.");
+        setBooks([]);
       } else {
-        setBooks(data);
+        setBooks(data);  
       }
     } catch (err) {
       console.error("❌ Public books fetch error:", err.message);
-      setError(`Failed to fetch books: ${err.message}`);
-      setBooks([]);
+      setBooks([]); // Ensuring books is an empty array on error
     } finally {
       setLoading(false);
     }
@@ -79,13 +74,12 @@ const BookManagment = () => {
       fetchBooks();
     } catch (err) {
       console.error("❌ Book deletion error:", err.message);
-      setError(`Failed to delete book: ${err.message}`);
     }
   };
 
   const handleBookApproval = async (bookId, action) => {
     try {
-      const updatedBookData = { isPublic: action === "approve" };
+      const updatedBookData = { isApproved: action === "approve" };
 
       const res = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}`,
@@ -101,11 +95,15 @@ const BookManagment = () => {
 
       if (!res.ok) throw new Error("Failed to update book");
 
-      fetchBooks();
+      // Update the local state to reflect changes immediately
+      setBooks((prevBooks) =>
+        prevBooks.map((book) =>
+          book._id === bookId ? { ...book, isApproved: action === "approve" } : book
+        )
+      );
       setShowModal(false); // Close modal after approval or deletion
     } catch (err) {
       console.error("❌ Book approval error:", err.message);
-      setError(`Failed to approve or delete book: ${err.message}`);
     }
   };
 
@@ -114,41 +112,43 @@ const BookManagment = () => {
   };
 
   return (
-   <div className="d-flex">
-         <div className="bg-dark text-white" style={{ width: "250px", minHeight: "100vh" }}>
-           <div className="p-3 border-bottom border-secondary">
-             <h4 className="mb-0 d-flex align-items-center">
-               <BsBook className="me-2" /> SmartBook Admin
-             </h4>
-           </div>
-           <div className="p-3">
-             <ul className="nav flex-column">
-               <li className="nav-item mb-2">
-                 <button className="nav-link btn text-white" onClick={() => navigate("/admin/profile")}>
-                   <BsPersonCircle className="me-2" /> Profile
-                 </button>
-               </li>
-               <li className="nav-item mb-2">
-                 <button className="nav-link btn text-white" onClick={() => navigate("/admin-dashboard")}>
-                   <BsBarChartFill className="me-2" /> Dashboard
-                 </button>
-               </li>
-               <li className="nav-item mb-2">
-                 <button className="nav-link btn text-white" onClick={() => navigate("/admin/users")}>
-                   <BsPeople className="me-2" /> Users
-                 </button>
-               </li>
-               <li className="nav-item mb-2">
-                 <button className="nav-link btn text-white" onClick={() => navigate("/admin/library")}>
-                   <BsBookFill className="me-2" /> Books
-                 </button>
-               </li>
-             </ul>
-           </div>
-         </div>
-   
-      
-   
+    <div className="d-flex">
+      <div className="bg-dark text-white" style={{ width: "250px", minHeight: "100vh" }}>
+        <div className="p-3 border-bottom border-secondary">
+          <h4 className="mb-0 d-flex align-items-center">
+            <BsBook className="me-2" /> SmartBook Admin
+          </h4>
+        </div>
+        <div className="p-3">
+          <ul className="nav flex-column">
+            <li className="nav-item mb-2">
+              <button className="nav-link btn text-white" onClick={() => navigate("/admin/profile")}>
+                <BsPersonCircle className="me-2" /> Profile
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button className="nav-link btn text-white" onClick={() => navigate("/admin-dashboard")}>
+                <BsBarChartFill className="me-2" /> Dashboard
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button className="nav-link btn text-white" onClick={() => navigate("/admin/users")}>
+                <BsPeople className="me-2" /> Users
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button className="nav-link btn text-white" onClick={() => navigate("/admin/books")}>
+                <BsBookFill className="me-2" /> Books
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button className="nav-link btn text-white" onClick={() => navigate("/login")}>
+                <BsPersonCircle className="me-2" /> Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
 
       {/* Main content */}
       <Container className="py-4" style={{ marginLeft: "250px" }}>
@@ -159,16 +159,13 @@ const BookManagment = () => {
           <Button variant="success" onClick={handleUploadBook} className="mb-4">
             📤 Upload New Book
           </Button>
-          {error && <Alert variant="danger">❌ {error}</Alert>}
 
           {loading ? (
             <div className="text-center py-4">
               <Spinner animation="border" variant="primary" />
             </div>
           ) : books.length === 0 ? (
-            <p className="text-muted">
-              No books found. Try adjusting filters or search terms.
-            </p>
+            <p className="text-muted">No books found. Try adjusting filters or search terms.</p>
           ) : (
             <ListGroup>
               {books.map((book) => (
@@ -178,14 +175,8 @@ const BookManagment = () => {
                 >
                   <div className="mb-2 mb-md-0">
                     <strong>{book.title}</strong>{" "}
-                    <span className="text-muted">
-                      by {book.author || "Unknown"}
-                    </span>
-                    {book.genre && (
-                      <Badge bg="info" className="ms-2">
-                        {book.genre}
-                      </Badge>
-                    )}
+                    <span className="text-muted">by {book.author || "Unknown"}</span>
+                    {book.genre && <Badge bg="info" className="ms-2">{book.genre}</Badge>}
                   </div>
                   <div>
                     <Button
@@ -204,7 +195,7 @@ const BookManagment = () => {
                       ⭐ Reviews
                     </Button>
                     <Button
-                      variant="outline-success"
+                      variant={book.isApproved ? "success" : "outline-dark"}
                       size="sm"
                       onClick={() => {
                         setSelectedBook(book);
@@ -236,15 +227,13 @@ const BookManagment = () => {
               <Modal.Title>Approve or Delete Book</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-  <h5>{selectedBook.title}</h5>
-  <p>{selectedBook.summary || "No summary available."}</p>
-  <p><strong>Author:</strong> {selectedBook.author || "Unknown"}</p>
-</Modal.Body>
+              <h5>{selectedBook.title}</h5>
+              <p>{selectedBook.summary || "No summary available."}</p>
+              <p><strong>Author:</strong> {selectedBook.author || "Unknown"}</p>
+            </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Close
-              </Button>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
               <Button
                 variant="success"
                 onClick={() => handleBookApproval(selectedBook._id, "approve")}

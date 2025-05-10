@@ -89,7 +89,7 @@ const AdminUploadBook = () => {
         pdf: null,
       });
 
-      navigate('/admin/library', { state: { uploadSuccess: true } }); // Trigger refetch in dashboard
+      navigate('/admin/books', { state: { uploadSuccess: true } }); // Trigger refetch in dashboard
     } catch (err) {
       setError(err.message || 'Upload failed');
     }
@@ -131,11 +131,16 @@ const AdminUploadBook = () => {
             <li className="nav-item mb-2">
               <button
                 className={`nav-link btn ${activeTab === "books" ? "text-primary" : "text-white"}`}
-                onClick={() => navigate("/admin/library")}
+                onClick={() => navigate("/admin/books")}
               >
                 <BsBookFill className="me-2" /> Books
               </button>
             </li>
+            <li className="nav-item mb-2">
+                          <button className="nav-link btn text-white" onClick={() => navigate("/login")}>
+                            <BsPersonCircle className="me-2" /> Logout
+                          </button>
+                        </li>
           </ul>
         </div>
       </div>
