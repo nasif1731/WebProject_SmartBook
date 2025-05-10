@@ -37,24 +37,7 @@ const ReaderPage = () => {
         setError('Failed to load book.');
       }
     };
-
-    const recordInitialReading = async () => {
-      try {
-        await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/read/${bookId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`
-          },
-          body: JSON.stringify({ progress: 0 })
-        });
-      } catch (err) {
-        console.error('❌ Failed to record reading:', err.message);
-      }
-    };
-
     fetchBook();
-    recordInitialReading();
   }, [bookId, user.token]);
 
   
