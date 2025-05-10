@@ -39,11 +39,15 @@ const Navbar = () => {
                 📘 Books
               </button>
               <ul className="dropdown-menu dropdown-menu-dark">
-                <li><Link className="dropdown-item" to="/library" onClick={closeMenu}>📚 Library</Link></li>
+                {user && (
+                  <>
+                    <li><Link className="dropdown-item" to="/library" onClick={closeMenu}>📚 Library</Link></li>
+                    <li><Link className="dropdown-item" to="/recommendations" onClick={closeMenu}>💡 Recommended</Link></li>
+                    <li><Link className="dropdown-item" to="/top" onClick={closeMenu}>📈 Top Books</Link></li>
+                    <li><Link className="dropdown-item" to="/recent" onClick={closeMenu}>🕒 Recently Read</Link></li>
+                  </>
+                )}
                 <li><Link className="dropdown-item" to="/public" onClick={closeMenu}>🔍 Explore</Link></li>
-                <li><Link className="dropdown-item" to="/recommendations" onClick={closeMenu}>💡 Recommended</Link></li>
-                <li><Link className="dropdown-item" to="/top" onClick={closeMenu}>📈 Top Books</Link></li>
-                <li><Link className="dropdown-item" to="/recent" onClick={closeMenu}>🕒 Recently Read</Link></li>
               </ul>
             </li>
 
@@ -58,7 +62,9 @@ const Navbar = () => {
                 🧠 Insights
               </button>
               <ul className="dropdown-menu dropdown-menu-dark">
-                <li><Link className="dropdown-item" to="/analytics" onClick={closeMenu}>📊 Analytics</Link></li>
+                {user && (
+                  <li><Link className="dropdown-item" to="/analytics" onClick={closeMenu}>📊 Analytics</Link></li>
+                )}
                 <li><Link className="dropdown-item" to="/leaderboard" onClick={closeMenu}>🏆 Leaderboard</Link></li>
                 <li><Link className="dropdown-item" to="/popular" onClick={closeMenu}>🔥 Popular Books</Link></li>
               </ul>

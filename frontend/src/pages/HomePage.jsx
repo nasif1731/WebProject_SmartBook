@@ -48,7 +48,7 @@ const HomePage = () => {
   return (
     <div className="app-container">
       {/* Hero Section */}
-      <div className="bg-primary text-white py-5">
+      <div style={{ backgroundColor: '#2ab8a6' }} className="text-white py-5">
         <Container>
           <Row className="align-items-center">
             <Col lg={6} className="mb-4 mb-lg-0">
@@ -67,11 +67,12 @@ const HomePage = () => {
                 Explore Library
               </Button>
             </Col>
-            <Col lg={6}>
+            <Col lg={6} className="text-end">
               <img 
-                src="/placeholder.svg?height=400&width=600" 
-                alt="SmartBook Library" 
+                src="/img.jpg"
+                alt="SmartBook Library"
                 className="img-fluid rounded shadow"
+                style={{ maxWidth: "90%", float: "right" }}
               />
             </Col>
           </Row>
@@ -81,9 +82,9 @@ const HomePage = () => {
       {/* Top Books Section */}
       <Container className="py-5">
         <h2 className="mb-4 text-center">📚 Top Books</h2>
-        
+
         {error && <div className="alert alert-danger">{error}</div>}
-        
+
         {loading ? (
           <div className="text-center py-5">
             <Spinner animation="border" variant="primary" />
@@ -92,10 +93,10 @@ const HomePage = () => {
         ) : (
           <Row>
             {topBooks.map((book) => {
-              const shortSummary = book.summary?.length > 120 
-                ? book.summary.slice(0, 120) + "..." 
+              const shortSummary = book.summary?.length > 120
+                ? book.summary.slice(0, 120) + "..."
                 : book.summary || "No summary available";
-                
+
               return (
                 <Col key={book._id} md={6} lg={3} className="mb-4">
                   <Card className="book-card h-100 shadow-sm">
@@ -108,21 +109,21 @@ const HomePage = () => {
                     <Card.Body className="d-flex flex-column">
                       <Card.Title>{book.title}</Card.Title>
                       <Card.Subtitle className="mb-2 text-muted">by {book.author || "Unknown"}</Card.Subtitle>
-                      
+
                       <div className="mb-2">
                         <Badge bg="secondary" className="me-1">{book.genre || "Uncategorized"}</Badge>
                         <small className="text-muted ms-2">{book.views || 0} views</small>
                       </div>
-                      
+
                       <div className="mb-2">
                         {renderStars(book.averageRating || 0)}
                         <small className="text-muted ms-2">({book.ratingCount || 0} reviews)</small>
                       </div>
-                      
+
                       <Card.Text className="text-muted small fst-italic mb-3">
                         {shortSummary}
                       </Card.Text>
-                      
+
                       <div className="mt-auto d-flex justify-content-between">
                         <Button 
                           variant="primary" 
@@ -146,7 +147,7 @@ const HomePage = () => {
             })}
           </Row>
         )}
-        
+
         <div className="text-center mt-4">
           <Button as={Link} to="/library" variant="outline-primary">
             View All Books
@@ -175,13 +176,12 @@ const HomePage = () => {
             <Col md={4}>
               <h5>Connect With Us</h5>
               <div className="d-flex gap-3">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-<a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
-<a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
- </div>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+              </div>
             </Col>
           </Row>
-          
         </Container>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import GoogleLoginButton from './GoogleLoginButton';
@@ -12,6 +12,22 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [captchaToken, setCaptchaToken] = useState('');
   const [error, setError] = useState('');
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
+
+  // 📍 Get user location on mount
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (err) => {
+        console.warn('Location error:', err);
+      }
+    );
+  }, []);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +44,12 @@ const Login = () => {
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, captchaToken }),
+        body: JSON.stringify({
+          ...formData,
+          captchaToken,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        }),
       });
 
       const text = await res.text(); // handle HTML fallback
@@ -42,7 +63,6 @@ const Login = () => {
       }
 
       if (!res.ok) throw new Error(data.message || 'Login failed');
-      login(data);
       login(data);
       if (data.isAdmin) {
         navigate('/admin-dashboard');

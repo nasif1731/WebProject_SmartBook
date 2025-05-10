@@ -56,34 +56,40 @@ exports.registerUser = async (req, res) => {
 };
 
 // 🔑 Login
+
 exports.loginUser = async (req, res) => {
   console.log("📝 login payload:", req.body); // DEBUG
 
-  const { email, password, captchaToken } = req.body;
+  const { email, password, captchaToken, latitude, longitude } = req.body;
 
-  // Verify CAPTCHA
+  // ✅ Verify CAPTCHA
   const captchaRes = await verifyCaptcha(captchaToken);
   if (!captchaRes.success) {
     return res.status(400).json({ message: 'CAPTCHA verification failed' });
   }
 
   try {
-    // Find the user by email
+    // 🔍 Find the user by email
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // If user is found, check if they are an admin
-    const isAdmin = user.isAdmin; // Assuming isAdmin is a boolean field in your User model
+    // 📍 Update user's location
+    user.latitude = latitude;
+    user.longitude = longitude;
+    await user.save();
 
-    // Respond with user data, including isAdmin status
+    // 🧠 Role check (if admin)
+    const isAdmin = user.isAdmin;
+
+    // ✅ Respond with user data and token
     res.json({
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      isAdmin, // Include the isAdmin status in the response
-      token: generateToken(user._id), // JWT token
+      isAdmin,
+      token: generateToken(user._id),
     });
   } catch (err) {
     res.status(500).json({ message: 'Login error', error: err.message });
@@ -92,7 +98,7 @@ exports.loginUser = async (req, res) => {
 
 // 🔐 Google Sign-In
 exports.googleAuth = async (req, res) => {
-  const { name, email, picture } = req.body;
+  const { name, email, picture, latitude, longitude } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -103,6 +109,8 @@ exports.googleAuth = async (req, res) => {
         email,
         password: 'google-oauth',
         avatar: picture || undefined,
+        latitude: latitude || null,
+        longitude: longitude || null,
       });
     }
 
