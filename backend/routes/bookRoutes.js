@@ -11,7 +11,8 @@ const {
   getRecommendations,
   getTopBooks,
   recordReading,
-  getAllBooks
+  getAllBooks,
+  getReadingProgress
 } = require('../controllers/bookController');
 const { addReview, getReviews } = require('../controllers/reviewController');
 const { admin  } = require('../middleware/adminMiddleware'); // Adjust path if needed
@@ -32,6 +33,7 @@ router.get('/:bookId', protect, getBookById);
 router.put('/:bookId', protect, editBook);
 router.delete('/:bookId', protect, deleteBook);
 router.post('/read/:bookId', protect, recordReading);
+router.get('/read/:bookId', protect, getReadingProgress);
 
 // ⭐ Review routes
 router.post('/:bookId/reviews', protect, addReview);

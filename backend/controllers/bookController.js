@@ -198,7 +198,8 @@ exports.recordReading = async (req, res) => {
   try {
     const userId = req.user._id;
     const bookId = req.params.bookId;
-    const { progress = 0 } = req.body;
+   const { progress = 0, pageNumber = 1, minutesRead = 0 } = req.body;
+
 
     const book = await Book.findById(bookId);
     if (!book) return res.status(404).json({ message: 'Book not found' });
@@ -210,11 +211,15 @@ exports.recordReading = async (req, res) => {
       (entry) => entry.book.toString() !== bookId
     );
 
-    user.readingHistory.unshift({
-      book: bookId,
-      progress,
-      lastRead: new Date(),
-    });
+   user.readingHistory.unshift({
+  book: bookId,
+  progress,
+  pageNumber,
+  lastRead: new Date(),
+  timeSpent: minutesRead,
+});
+
+
 
     if (user.readingHistory.length > 20) {
       user.readingHistory = user.readingHistory.slice(0, 20);
@@ -243,5 +248,31 @@ exports.getAllBooks = async (req, res) => {
     res.json(books);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch all books', error: err.message });
+  }
+};
+// ✅ Get reading progress for specific book
+exports.getReadingProgress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).lean();
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const bookId = req.params.bookId;
+    const entry = user.readingHistory.find(
+      (r) => r.book.toString() === bookId
+    );
+
+    if (!entry) return res.json({ readingHistory: [] });
+
+    return res.json({
+      readingHistory: [
+        {
+          book: entry.book,
+          progress: entry.progress,
+          pageNumber: entry.pageNumber || 1,
+        },
+      ],
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch reading progress", error: err.message });
   }
 };

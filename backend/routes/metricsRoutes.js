@@ -10,5 +10,6 @@ const { getLeaderboard } = require('../controllers/leaderboardController');
 router.get('/analytics', protect, getReadingAnalytics);
 router.get('/popular', getPopularBooks);
 router.get('/leaderboard', getLeaderboard);
+router.get('/analytics', protect, getReadingAnalytics);
 
 module.exports = router;
