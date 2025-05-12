@@ -17,12 +17,15 @@ const userSchema = new mongoose.Schema({
   readList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
   uploadedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
   readingHistory: [
-    {
-      book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
-      progress: { type: Number, default: 0 },
-      timestamp: { type: Date, default: Date.now },
-    },
-  ],
+  {
+    book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
+    progress: Number,
+    pageNumber: Number,
+    lastRead: Date,
+    timeSpent: { type: Number, default: 0 } // in minutes
+  }
+],
+
   otp: String,
   otpExpires: Date,
 });
