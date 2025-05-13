@@ -17,6 +17,7 @@ const ReaderPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // ✅ Hooks MUST be at the top-level
   const [book, setBook] = useState(null);
   const [progress, setProgress] = useState(0);
   const [savedProgress, setSavedProgress] = useState(0);
@@ -28,10 +29,9 @@ const ReaderPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [scale, setScale] = useState(1.0);
-
   const containerRef = useRef(null);
 
-  // ✅ Dynamically adjust PDF scale for different screen sizes
+  // ✅ PDF scale based on screen size
   useEffect(() => {
     const updateScale = () => {
       const w = window.innerWidth;
@@ -44,8 +44,10 @@ const ReaderPage = () => {
     return () => window.removeEventListener("resize", updateScale);
   }, []);
 
-  // ✅ Fetch book and reading progress
+  // ✅ Fetch book and progress
   useEffect(() => {
+    if (!user?.token) return;
+
     const fetchBook = async () => {
       try {
         const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}`, {
@@ -75,13 +77,11 @@ const ReaderPage = () => {
       }
     };
 
-    if (user?.token) {
-      fetchBook();
-      fetchProgress();
-    }
-  }, [bookId, user]);
+    fetchBook();
+    fetchProgress();
+  }, [bookId, user?.token]);
 
-  // ✅ Set correct page when PDF is loaded
+  // ✅ Set correct page after load
   useEffect(() => {
     if (pdfLoaded && numPages) {
       const pageToShow = savedPage || Math.ceil((savedProgress / 100) * numPages) || 1;
@@ -90,15 +90,14 @@ const ReaderPage = () => {
     }
   }, [pdfLoaded, numPages, savedPage, savedProgress]);
 
-  // ✅ Update progress when currentPage changes
   useEffect(() => {
     if (numPages && currentPage) {
       setProgress(Math.round((currentPage / numPages) * 100));
     }
   }, [currentPage, numPages]);
 
-  // ✅ Manual and auto progress save
   const handleProgressSave = useCallback(async () => {
+    if (!user?.token) return;
     setSaving(true);
     try {
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books/read/${bookId}`, {
@@ -120,9 +119,8 @@ const ReaderPage = () => {
       setSaving(false);
       setTimeout(() => setSuccess(""), 2000);
     }
-  }, [bookId, progress, currentPage, user.token]);
+  }, [bookId, progress, currentPage, user?.token]);
 
-  // ✅ Autosave every 20s if changed
   useEffect(() => {
     const interval = setInterval(() => {
       if (progress !== savedProgress) {
@@ -132,7 +130,6 @@ const ReaderPage = () => {
     return () => clearInterval(interval);
   }, [progress, savedProgress, handleProgressSave]);
 
-  // ✅ Handle arrow key navigation
   const handleKeyDown = useCallback((e) => {
     if (e.key === "ArrowRight") setCurrentPage((p) => Math.min(p + 1, numPages));
     if (e.key === "ArrowLeft") setCurrentPage((p) => Math.max(p - 1, 1));
@@ -148,18 +145,60 @@ const ReaderPage = () => {
     setPdfLoaded(true);
   };
 
-  // ✅ Access control
-  if (!user?.token) {
+  // ✅ Auth prompt UI moved to render section
+  if (!user || !user.token) {
+    const backgroundStyle = {
+      minHeight: "100vh",
+      background: "linear-gradient(to bottom right, #f0f4f8, #d9e2ec)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    };
+
     return (
-      <Container className="py-5 text-center">
-        <Alert variant="warning">
-          🔒 Please <a href="/login"><strong>login</strong></a> to continue reading.
-        </Alert>
-      </Container>
+      <div style={backgroundStyle}>
+        <Container className="py-5">
+          <Card
+            className="border-0 shadow-sm text-center p-5"
+            style={{ borderRadius: "15px", backdropFilter: "blur(10px)" }}
+          >
+            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🔒</div>
+            <h3 className="mb-3">Authentication Required</h3>
+            <p className="mb-4">
+              Please{" "}
+              <a href="/login" className="fw-bold text-decoration-none">
+                login
+              </a>{" "}
+              to access the SmartBook Library.
+            </p>
+            <p className="text-muted small">
+              Features like <strong>Library, Read, Upload, Analytics, Recently Read</strong> are only available to
+              logged-in users.
+            </p>
+            <div className="mt-4">
+              <Button
+                variant="primary"
+                href="/login"
+                className="me-2"
+                style={{
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                  border: "none",
+                  boxShadow: "0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)",
+                }}
+              >
+                Login
+              </Button>
+              <Button variant="outline-primary" href="/register" style={{ borderRadius: "10px" }}>
+                Register
+              </Button>
+            </div>
+          </Card>
+        </Container>
+      </div>
     );
   }
 
-  // ✅ Error and loading states
   if (error) return <Alert variant="danger">{error}</Alert>;
   if (!book) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
 
@@ -167,7 +206,6 @@ const ReaderPage = () => {
     <Container className="py-4" style={{ maxWidth: "1000px" }}>
       <Card className="p-3 shadow">
         <h2 className="mb-3">📖 {book.title}</h2>
-
         <div
           ref={containerRef}
           className="d-flex justify-content-center"
@@ -210,7 +248,6 @@ const ReaderPage = () => {
           </Col>
         </Row>
 
-        
         {success && <Alert variant="success" className="mt-2">{success}</Alert>}
         <Button
           variant="outline-primary"

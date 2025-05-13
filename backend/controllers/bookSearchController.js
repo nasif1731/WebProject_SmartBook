@@ -5,37 +5,56 @@ const User = require('../models/User');
 exports.searchBooks = async (req, res) => {
   try {
     const { q, genre, author, tags, sortBy = 'createdAt', order = 'desc' } = req.query;
-    const query = [];
 
+    const query = { isPublic: true };
 
+    // 🔎 Text search
     if (q) {
       const regex = new RegExp(q, 'i');
-      query.push({ $or: [{ title: regex }, { author: regex }, { genre: regex }] });
+      query.$or = [
+        { title: regex },
+        { author: regex },
+        { genre: regex },
+      ];
     }
 
-    if (genre) query.push({ genre });
-    if (author) query.push({ author: new RegExp(author, 'i') });
-    if (tags) query.push({ tags: { $in: tags.split(',') } });
+    // 🎭 Genre filter (if not in q)
+    if (genre && !q) {
+      query.genre = new RegExp(genre, 'i');
+    }
 
-    // Optional: filter public books only
-    query.push({ isPublic: true });
+    // ✍️ Author filter
+    if (author) {
+      query.author = new RegExp(author, 'i');
+    }
 
-    const mongoQuery = query.length > 0 ? { $and: query } : {};
+    // 🏷️ Handle "Popular" and "Recommended" as special tags
+    let customSort = null;
+    if (tags) {
+      const tagArray = tags.split(',').map(tag => tag.trim().toLowerCase());
 
+      if (tagArray.includes('popular')) {
+        // Popular → Sort by views descending
+        customSort = { views: -1 };
+      }
 
-    const sortFields = ['createdAt', 'views'];
-    const safeSort = sortFields.includes(sortBy) ? sortBy : 'createdAt';
-    const sortOption = { [safeSort]: order === 'asc' ? 1 : -1 };
+      if (tagArray.includes('recommended')) {
+        // Recommended → Sort by rating descending (if rating field exists)
+        customSort = { rating: -1 };
+      }
+    }
 
-    const books = await Book.find(mongoQuery).sort(sortOption);
+    // 📊 Default sort fallback
+    const validSorts = ['createdAt', 'views'];
+    const safeSort = validSorts.includes(sortBy) ? sortBy : 'createdAt';
+    const sortOption = customSort || { [safeSort]: order === 'asc' ? 1 : -1 };
 
+    const books = await Book.find(query).sort(sortOption);
     res.json(books);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch book', error: err.message });
+    res.status(500).json({ message: 'Failed to fetch books', error: err.message });
   }
 };
-
-
 
 // 🔄 Recently Read Books
 exports.getRecentlyReadBooks = async (req, res) => {
